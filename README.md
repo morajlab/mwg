@@ -1,0 +1,1 @@
+# Moraj Lab workspace templates
