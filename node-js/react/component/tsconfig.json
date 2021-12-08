@@ -1,8 +1,18 @@
 {
-  "extends": "./node_modules/@morajlab/npm.config.typescript/tsconfig.base.json",
+  "extends": "./node_modules/@morajlab/npm.config.typescript/ts-node.json",
   "compilerOptions": {
-    "resolveJsonModule": true,
-    "rootDir": "src",
-    "baseUrl": "."
-  }
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "./dist"
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    }
+  ]
 }

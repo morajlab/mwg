@@ -6,13 +6,17 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "preinstall": "npm config set '@morajlab:registry' https://npm.pkg.github.com",
+    "build": "tsc --project ./tsconfig.app.json",
     "test": "echo \"Error: no test specified\" && exit 0",
     "format:prettier": "prettier --write --ignore-unknown",
     "format:css": "stylelint",
-    "prepare": "husky install",
+    "prepare": "husky install || exit 0",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
+  "files": [
+    "dist/"
+  ],
   "keywords": [
     "react",
     "component"
@@ -24,28 +28,38 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@morajlab/npm.react.utils.style": "^0.0.1-alpha",
     "@morajlab/npm.react.types.common": "^0.0.1-alpha",
+    "@morajlab/npm.react.utils.style": "^0.0.1-alpha",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.16.0",
     "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^15.0.0",
+    "@morajlab/npm.config.prettier": "^0.0.1-alpha",
     "@morajlab/npm.config.typescript": "^0.0.1-alpha",
     "@storybook/addon-actions": "^6.4.8",
     "@storybook/addon-essentials": "^6.4.8",
+    "@storybook/addon-interactions": "^6.4.8",
     "@storybook/addon-links": "^6.4.8",
+    "@storybook/builder-webpack5": "^6.4.8",
+    "@storybook/manager-webpack5": "^6.4.8",
     "@storybook/react": "^6.4.8",
+    "@storybook/testing-library": "^0.0.7",
     "@testing-library/react": "^12.1.2",
     "@types/jest": "^27.0.3",
+    "babel-loader": "^8.2.3",
     "commitlint": "^15.0.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2",
     "prettier": "^2.5.1",
     "stylelint": "^14.1.0",
     "stylelint-config-standard": "^24.0.0",
-    "typescript": "^4.5.2"
+    "ts-node": "^10.4.0",
+    "tsconfig-paths-webpack-plugin": "^3.5.2",
+    "typescript": "^4.5.2",
+    "webpack": "^5.65.0"
   },
   "repository": {
     "type": "git",
