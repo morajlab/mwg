@@ -1,0 +1,6 @@
+{
+  "root": "packages/workspace-templates",
+  "sourceRoot": "packages/workspace-templates/packages",
+  "projectType": "library",
+  "tags": []
+}
