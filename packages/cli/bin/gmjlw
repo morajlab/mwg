@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+ROOT_PATH=$(dirname $(dirname $(dirname $(dirname $0))))
+TEMPLATES_PATH=$ROOT_PATH/packages/templates
+
+g() {
+  generate $*
+}
+generate() {
+  # while [ "$#" -gt 0 ]; do
+  #   case "${1^^}" in
+  #     "GENERATE" | "G")
+
+  #     ;;
+  #     *)
+  #       shift
+  #     ;;
+  #   esac
+  # done
+  echo ''
+}
+
+list() {
+  while IFS= read -r template; do
+    echo "- $template"
+  done < <(ls -aA $TEMPLATES_PATH)
+}
+l() {
+  list $*
+}
+
+$1 ${*:2}
