@@ -7,17 +7,36 @@ g() {
   generate $*
 }
 generate() {
-  # while [ "$#" -gt 0 ]; do
-  #   case "${1^^}" in
-  #     "GENERATE" | "G")
+  local template=
+  local path=$(pwd)
 
-  #     ;;
-  #     *)
-  #       shift
-  #     ;;
-  #   esac
-  # done
-  echo ''
+  while [ "$#" -gt 0 ]; do
+    if [ -z $template ]; then
+      if [ ! -d $TEMPLATES_PATH/$1 ]; then
+        echo ">>> ERROR  :: template '$1' does not exist."
+        exit 1
+      fi
+
+      template=$1
+
+      shift
+      continue
+    fi
+
+    case "${1^^}" in
+      "--PATH" | "-P")
+        path=$2
+
+        shift
+        shift
+      ;;
+      *)
+        shift
+      ;;
+    esac
+  done
+
+  cp -r "$TEMPLATES_PATH/$template" "$path"
 }
 
 list() {
