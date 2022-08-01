@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ROOT_PATH=$(dirname $(dirname $(dirname $(dirname $0))))
-TEMPLATES_PATH=$ROOT_PATH/packages/templates
+TEMPLATES_PATH=$ROOT_PATH/packages/templates.list.d
 
 g() {
   generate "$@"
@@ -63,12 +63,38 @@ generate() {
 }
 
 list() {
+  local search_path=$TEMPLATES_PATH
+  local user_temp_list_path=/etc/mwg/templates.list.d
+  local show_path=1
+
+  if [ -d "$user_temp_list_path" ]; then
+    search_path+=" $user_temp_list_path"
+  fi
+
+  while [ "$#" -gt 0 ]; do
+    case "${1^^}" in
+      "--PATH" | "-P")
+        show_path=0
+
+        shift
+      ;;
+      *)
+        shift
+      ;;
+    esac
+  done
+
   while IFS= read -r template; do
-    echo "- $template"
-  done < <(ls -aA $TEMPLATES_PATH)
+    if [[ $show_path = 0 ]]; then
+      realpath $template
+    else
+      # TODO: show templates information in table
+      echo
+    fi
+  done < <(find $search_path -name '*.mwg')
 }
 l() {
-  list $*
+  list "$@"
 }
 
 $1 "$@"

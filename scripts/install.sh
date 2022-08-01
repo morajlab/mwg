@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-INSTALL_HUSKY_COMMAND="npx husky install"
-
 # Install esh
 install_esh() {
   local TMP_PATH=$(mktemp -d)
@@ -24,8 +22,4 @@ fi
 
 npm i
 
-$INSTALL_HUSKY_COMMAND
-
-git submodule update --init --recursive 2> mjl-error.log 1> /dev/null
-git submodule foreach --recursive 'git checkout -b submodules | echo -n' 2> mjl-error.log 1> /dev/null
-git submodule foreach --recursive $INSTALL_HUSKY_COMMAND 2> mjl-error.log 1> /dev/null
+npx husky install
