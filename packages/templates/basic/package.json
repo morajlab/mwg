@@ -1,32 +1,17 @@
 {
-  "name": "workspace-templates",
-  "version": "0.0.1-alpha",
-  "description": "MJW templates",
+  "name": "[workspace-name]",
+  "version": "0.0.0",
+  "description": "[workspace-description]",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/morajlab/workspace-templates.git"
+  "scripts": {},
+  "devDependencies": {
+    "@commitlint/cli": "latest",
+    "@commitlint/config-conventional": "latest",
+    "husky": "latest",
+    "lint-staged": "latest",
+    "prettier": "latest"
   },
-  "keywords": [
-    "morajlab",
-    "moraj",
-    "workspace",
-    "mjw",
-    "template",
-    "generator"
-  ],
-  "author": {
-    "name": "Morteza Jamali",
-    "email": "mortezajamali4241@gmail.com",
-    "url": "https://moraj.ir"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/morajlab/workspace-templates/issues"
-  },
-  "homepage": "https://github.com/morajlab/workspace-templates#readme",
   "lint-staged": {
-    "**/*": "prettier -w -u",
-    "**/*.css": "stylelint"
+    "**/*": "prettier -w -u"
   }
 }
