@@ -1,6 +1,6 @@
 {
-  "root": "packages/workspace-templates",
-  "sourceRoot": "packages/workspace-templates/packages",
-  "projectType": "library",
+  "root": "packages/mwg",
+  "sourceRoot": "packages/mwg/packages",
+  "projectType": "application",
   "tags": []
 }

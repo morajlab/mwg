@@ -1,7 +1,7 @@
 {
-  "name": "workspace-templates",
+  "name": "mwg",
   "version": "0.0.1-alpha",
-  "description": "MJW templates",
+  "description": "Moraj Lab workspace generator",
   "license": "MIT",
   "scripts": {},
   "private": true,
@@ -15,20 +15,17 @@
     "lint-staged": "^13.0.3",
     "nx": "14.4.2",
     "prettier": "^2.6.2",
-    "stylelint": "^14.9.1",
-    "stylelint-config-prettier": "^9.0.3",
-    "stylelint-config-standard": "^26.0.0",
     "typescript": "~4.7.2"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/morajlab/workspace-templates.git"
+    "url": "git+https://github.com/morajlab/mwg.git"
   },
   "keywords": [
     "morajlab",
     "moraj",
     "workspace",
-    "mjw",
+    "mwg",
     "template",
     "generator"
   ],
@@ -38,11 +35,10 @@
     "url": "https://moraj.ir"
   },
   "bugs": {
-    "url": "https://github.com/morajlab/workspace-templates/issues"
+    "url": "https://github.com/morajlab/mwg/issues"
   },
-  "homepage": "https://github.com/morajlab/workspace-templates#readme",
+  "homepage": "https://github.com/morajlab/mwg#readme",
   "lint-staged": {
-    "**/*": "prettier -w -u",
-    "**/*.css": "stylelint"
+    "**/*": "prettier -w -u"
   }
 }

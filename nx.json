@@ -1,8 +1,8 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "workspace-templates",
+  "npmScope": "mwg",
   "affected": {
-    "defaultBase": "main"
+    "defaultBase": "master"
   },
   "implicitDependencies": {
     "package.json": {
