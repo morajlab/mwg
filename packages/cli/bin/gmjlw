@@ -4,15 +4,19 @@ ROOT_PATH=$(dirname $(dirname $(dirname $(dirname $0))))
 TEMPLATES_PATH=$ROOT_PATH/packages/templates
 
 g() {
-  generate $*
+  generate "$@"
 }
 generate() {
   local template=
+  local workspace_name='workspace_name'
+  local workspace_description='workspace description'
   local path=$(pwd)
+
+  shift
 
   while [ "$#" -gt 0 ]; do
     if [ -z $template ]; then
-      if [ ! -d $TEMPLATES_PATH/$1 ]; then
+      if [ ! -d "$TEMPLATES_PATH/$1" ]; then
         echo ">>> ERROR  :: template '$1' does not exist."
         exit 1
       fi
@@ -24,6 +28,18 @@ generate() {
     fi
 
     case "${1^^}" in
+      "--DESCRIPTION" | "-D")
+        workspace_description=$2
+
+        shift
+        shift
+      ;;
+      "--NAME" | "-N")
+        workspace_name=$2
+
+        shift
+        shift
+      ;;
       "--PATH" | "-P")
         path=$2
 
@@ -36,7 +52,14 @@ generate() {
     esac
   done
 
-  cp -r "$TEMPLATES_PATH/$template" "$path"
+  TMP_DIR=$(mktemp -d)
+
+  cp -r "$TEMPLATES_PATH/$template" "$TMP_DIR" && \
+  bash "$TMP_DIR/$template/generate.sh" \
+    --name "$workspace_name" --desc "$workspace_description" && \
+  cp -r "$TMP_DIR/$template/files" "$path" && \
+  rm -rf "$TMP_DIR" && \
+  echo ">>> SUCCESS:: workspace generated at '$path'"
 }
 
 list() {
@@ -48,4 +71,4 @@ l() {
   list $*
 }
 
-$1 ${*:2}
+$1 "$@"

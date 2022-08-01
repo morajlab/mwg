@@ -1,3 +1,0 @@
-# [workspace-name]
-
-[workspace-description]

@@ -1,7 +1,7 @@
 {
-  "name": "[workspace-name]",
+  "name": "<%= $workspace_name %>",
   "version": "0.0.0",
-  "description": "[workspace-description]",
+  "description": "<%= $workspace_description %>",
   "private": true,
   "scripts": {},
   "devDependencies": {
