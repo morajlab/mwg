@@ -3,11 +3,111 @@
 ROOT_PATH=$(dirname $(dirname $(dirname $(dirname $0))))
 TEMPLATES_PATH=$ROOT_PATH/packages/templates.list.d
 
-g() {
-  generate "$@"
+# Private functions
+__get_temp_paths() {
+  local search_path=$TEMPLATES_PATH
+  local user_temp_list_path=/etc/mwg/templates.list.d
+
+  if [ -d "$user_temp_list_path" ]; then
+    search_path+=" $user_temp_list_path"
+  fi
+
+  while IFS= read -r template; do
+    realpath $template
+  done < <(find $search_path -name '*.mwg')
 }
+
+__verify_template() {
+  local found=1
+  local template_name=
+  local template_path=
+
+  while IFS= read -r template; do
+    template_name=$(basename $template)
+
+    if [ "${template_name%.mwg}" == "$1" ]; then
+      found=$((--found))
+      template_path=$template
+    fi
+
+    if [ "$found" == "-1" ]; then
+      echo ">>> ERROR  : template '$1' is duplicated."
+      exit 1
+    fi
+  done < <(__get_temp_paths)
+
+  if [ "$found" == "1" ]; then
+    echo ">>> ERROR  : template '$1' not found."
+    exit 1
+  fi
+
+  if [ ! -s "$template_path" ]; then
+    echo ">>> ERROR  :: source list '$template_path' is not valid."
+    exit 1
+  fi
+
+  echo "$template_path"
+}
+
+__show_parsed_data() {
+  if [ "$1" == "0" ]; then
+    echo $3
+  else
+    echo $2 $3
+  fi
+}
+
+__parse_mwg_config() {
+  local template_path=$1
+  local target_key=
+  local get_value=1
+  local key=
+  local value=
+  local __show_parsed_data_alias="__show_parsed_data"
+
+  while [ "$#" -gt 0 ]; do
+    case "${1^^}" in
+      "--KEY" | "-K")
+        target_key=$2
+
+        shift
+        shift
+      ;;
+      "--VALUE" | "-V")
+        get_value=0
+
+        shift
+      ;;
+      *)
+        shift
+      ;;
+    esac
+  done
+
+  __show_parsed_data_alias+=" $get_value"
+
+  while IFS= read -r line; do
+    key=$(echo $line | cut -d '=' -f 1)
+    value=$(echo $line | cut -d '=' -f 2)
+
+    if [ ! -z "$target_key" ]; then
+      if [ "$target_key" == "$key" ]; then
+        $__show_parsed_data_alias $key $value
+      fi
+    else
+      $__show_parsed_data_alias $key $value
+    fi
+  done < $template_path
+}
+
+# __cache() {
+
+# }
+
+# Public functions
 generate() {
   local template=
+  local template_path=
   local workspace_name='workspace_name'
   local workspace_description='workspace description'
   local path=$(pwd)
@@ -16,8 +116,10 @@ generate() {
 
   while [ "$#" -gt 0 ]; do
     if [ -z $template ]; then
-      if [ ! -d "$TEMPLATES_PATH/$1" ]; then
-        echo ">>> ERROR  :: template '$1' does not exist."
+      template_path="$(__verify_template $1)"
+
+      if [ "$?" != "0" ]; then
+        echo $template_path
         exit 1
       fi
 
@@ -52,49 +154,37 @@ generate() {
     esac
   done
 
-  TMP_DIR=$(mktemp -d)
+  if [ -z "$template" ]; then
+    echo ">>> ERROR  :: template name is not specefied."
+    exit 1
+  fi
 
-  cp -r "$TEMPLATES_PATH/$template" "$TMP_DIR" && \
-  bash "$TMP_DIR/$template/generate.sh" \
-    --name "$workspace_name" --desc "$workspace_description" && \
-  cp -r "$TMP_DIR/$template/files" "$path" && \
-  rm -rf "$TMP_DIR" && \
-  echo ">>> SUCCESS:: workspace generated at '$path'"
+  # TMP_DIR=$(mktemp -d)
+
+  __parse_mwg_config $template_path --key repository --value
+
+  # cp -r "$TEMPLATES_PATH/$template" "$TMP_DIR" && \
+  # bash "$TMP_DIR/$template/generate.sh" \
+  #   --name "$workspace_name" --desc "$workspace_description" && \
+  # cp -r "$TMP_DIR/$template/files" "$path" && \
+  # rm -rf "$TMP_DIR" && \
+  # echo ">>> SUCCESS:: workspace generated at '$path'"
+}
+g() {
+  generate "$@"
 }
 
 list() {
-  local search_path=$TEMPLATES_PATH
-  local user_temp_list_path=/etc/mwg/templates.list.d
-  local show_path=1
-
-  if [ -d "$user_temp_list_path" ]; then
-    search_path+=" $user_temp_list_path"
-  fi
-
-  while [ "$#" -gt 0 ]; do
-    case "${1^^}" in
-      "--PATH" | "-P")
-        show_path=0
-
-        shift
-      ;;
-      *)
-        shift
-      ;;
-    esac
-  done
-
-  while IFS= read -r template; do
-    if [[ $show_path = 0 ]]; then
-      realpath $template
-    else
-      # TODO: show templates information in table
-      echo
-    fi
-  done < <(find $search_path -name '*.mwg')
+  # TODO: show templates information in table
+  __get_temp_paths
 }
 l() {
   list "$@"
 }
+
+if [[ $1 = __* ]] || [ "$(type -t $1)" != 'function' ]; then
+  echo ">>> ERROR  :: argument '$1' is invalid."
+  exit 1
+fi
 
 $1 "$@"
