@@ -2,6 +2,7 @@
 
 ROOT_PATH=$(dirname $(dirname $(dirname $(dirname $0))))
 TEMPLATES_PATH=$ROOT_PATH/packages/templates.list.d
+CACHE_PATH=$HOME/.mwg_cache
 
 # Private functions
 __get_temp_paths() {
@@ -57,6 +58,13 @@ __show_parsed_data() {
   fi
 }
 
+__normalize_string() {
+  local string=${1%\"}
+  string=${string#\"}
+
+  echo "$string"
+}
+
 __parse_mwg_config() {
   local template_path=$1
   local target_key=
@@ -87,8 +95,8 @@ __parse_mwg_config() {
   __show_parsed_data_alias+=" $get_value"
 
   while IFS= read -r line; do
-    key=$(echo $line | cut -d '=' -f 1)
-    value=$(echo $line | cut -d '=' -f 2)
+    key=$(__normalize_string $(echo $line | cut -d '=' -f 1))
+    value=$(__normalize_string $(echo $line | cut -d '=' -f 2))
 
     if [ ! -z "$target_key" ]; then
       if [ "$target_key" == "$key" ]; then
@@ -100,14 +108,37 @@ __parse_mwg_config() {
   done < $template_path
 }
 
-# __cache() {
+__cache() {
+  local repository_url=${1%.git}
+  local temp_dir_name=$(basename $repository_url)
+  local temp_cache_path=$CACHE_PATH/$temp_dir_name
 
-# }
+  if [ ! -d "$CACHE_PATH" ]; then
+    mkdir -p "$CACHE_PATH"
+  fi
+
+  if [ ! -d "$temp_cache_path" ]; then
+    local TMP_PATH=$(mktemp -d)
+
+    (
+      cd "$TMP_PATH"
+      curl -L -o "$temp_dir_name.zip" "$repository_url/archive/refs/heads/master.zip" &> /dev/null
+      unzip "$temp_dir_name.zip" -d "$temp_dir_name" &> /dev/null
+      cp -r ./$temp_dir_name/* "$temp_cache_path"
+      cd ..
+      rm -rf "$TMP_PATH"
+    )
+  fi
+
+  echo "$temp_cache_path"
+}
 
 # Public functions
 generate() {
   local template=
   local template_path=
+  local template_url=
+  local temp_cache_path=
   local workspace_name='workspace_name'
   local workspace_description='workspace description'
   local path=$(pwd)
@@ -120,7 +151,7 @@ generate() {
 
       if [ "$?" != "0" ]; then
         echo $template_path
-        exit 1
+        exit $?
       fi
 
       template=$1
@@ -159,16 +190,22 @@ generate() {
     exit 1
   fi
 
-  # TMP_DIR=$(mktemp -d)
+  template_url=$(__parse_mwg_config $template_path --key repository --value)
+  temp_cache_path=$(__cache $template_url)
 
-  __parse_mwg_config $template_path --key repository --value
+  if [ "$?" != "0" ]; then
+    echo $temp_cache_path
+    exit $?
+  fi
 
-  # cp -r "$TEMPLATES_PATH/$template" "$TMP_DIR" && \
-  # bash "$TMP_DIR/$template/generate.sh" \
-  #   --name "$workspace_name" --desc "$workspace_description" && \
-  # cp -r "$TMP_DIR/$template/files" "$path" && \
-  # rm -rf "$TMP_DIR" && \
-  # echo ">>> SUCCESS:: workspace generated at '$path'"
+  local TMP_PATH=$(mktemp -d)
+
+  cp -r $temp_cache_path/* "$TMP_PATH" && \
+  bash "$TMP_PATH/generate.sh" \
+    --name "$workspace_name" --desc "$workspace_description" && \
+  cp -r "$TMP_PATH/files" "$path" && \
+  rm -rf "$TMP_PATH" && \
+  echo ">>> SUCCESS:: workspace generated at '$path'"
 }
 g() {
   generate "$@"
