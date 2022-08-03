@@ -133,6 +133,51 @@ __cache() {
   echo "$temp_cache_path"
 }
 
+help() {
+  if [ "$1" == "--help" ]; then
+    cat <<- EOF
+Usage: mwg <help|h> [command]
+
+Show help
+
+  arguments:
+      command  command name
+
+Find more information and examples at: https://github.com/morajlab/mwg
+EOF
+    exit 0
+  fi
+
+  shift
+
+  if [ ! -z "$1" ]; then
+    $1 --help
+    exit 0
+  fi
+
+  cat <<- 'EOF'
+MWG, Moraj Lab workspace generator
+
+Usage: mwg <command> [options]
+
+  commands:
+      help     or h  [command]
+      generate or g  <template> [options]
+      list     or l
+      version  or v
+EOF
+}
+h() {
+  help "$@"
+}
+
+version() {
+  echo "mwg v0.0.1-alpha"
+}
+v() {
+  version "$@"
+}
+
 # Public functions
 generate() {
   local template=
@@ -142,6 +187,23 @@ generate() {
   local workspace_name='workspace_name'
   local workspace_description='workspace description'
   local path=$(pwd)
+
+  if [ "$1" == "--help" ]; then
+    cat <<- EOF
+Usage: mwg <generate|g> <template> [options]
+
+Generate workspace from template
+
+  arguments:
+      template       template name
+      --description  workspace description [default: $workspace_description]
+      --name         workspace name        [default: $workspace_name]
+      --path         workspace path        [default: current path]
+
+Find more information and examples at: https://github.com/morajlab/mwg
+EOF
+    exit 0
+  fi
 
   shift
 
