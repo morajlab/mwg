@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Import bash modules
+log=$(bpm import log)
+
 ROOT_PATH=$(dirname $(dirname $(dirname $(dirname $0))))
 TEMPLATES_PATH=$ROOT_PATH/packages/templates.list.d
 CACHE_PATH=$HOME/.mwg_cache
@@ -32,18 +35,18 @@ __verify_template() {
     fi
 
     if [ "$found" == "-1" ]; then
-      echo ">>> ERROR  : template '$1' is duplicated."
+      echo "template '$1' is duplicated"
       exit 1
     fi
   done < <(__get_temp_paths)
 
   if [ "$found" == "1" ]; then
-    echo ">>> ERROR  : template '$1' not found."
+    echo "template '$1' not found"
     exit 1
   fi
 
   if [ ! -s "$template_path" ]; then
-    echo ">>> ERROR  :: source list '$template_path' is not valid."
+    echo "source list '$template_path' is not valid"
     exit 1
   fi
 
@@ -212,7 +215,7 @@ EOF
       template_path="$(__verify_template $1)"
 
       if [ "$?" != "0" ]; then
-        echo $template_path
+        $log error "$template_path"
         exit $?
       fi
 
@@ -248,7 +251,7 @@ EOF
   done
 
   if [ -z "$template" ]; then
-    echo ">>> ERROR  :: template name is not specefied."
+    $log error "template name is not specefied"
     exit 1
   fi
 
@@ -256,7 +259,7 @@ EOF
   temp_cache_path=$(__cache $template_url)
 
   if [ "$?" != "0" ]; then
-    echo $temp_cache_path
+    $log error "$temp_cache_path"
     exit $?
   fi
 
@@ -265,9 +268,10 @@ EOF
   cp -r $temp_cache_path/* "$TMP_PATH" && \
   bash "$TMP_PATH/generate.sh" \
     --name "$workspace_name" --desc "$workspace_description" && \
-  cp -r "$TMP_PATH/files" "$path" && \
+  mkdir -p $path && \
+  cp -r $TMP_PATH/files/* "$path" && \
   rm -rf "$TMP_PATH" && \
-  echo ">>> SUCCESS:: workspace generated at '$path'"
+  $log success "workspace generated at '$path'"
 }
 g() {
   generate "$@"
@@ -282,7 +286,7 @@ l() {
 }
 
 if [[ $1 = __* ]] || [ "$(type -t $1)" != 'function' ]; then
-  echo ">>> ERROR  :: argument '$1' is invalid."
+  $log error "argument '$1' is invalid"
   exit 1
 fi
 
